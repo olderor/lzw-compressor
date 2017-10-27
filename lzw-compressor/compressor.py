@@ -30,7 +30,6 @@ def compress(bytes):
     result = []
     table = get_table()
     current = ""
-    blocks = []
     for char in text:
         total = current + chr(char)
 
@@ -80,5 +79,4 @@ def decompress(packed_data):
 
     lst = list(map(ord, result))
     binary = struct.pack("B" * (len(result)), *lst)
-    print(len(lst))
     return binary
