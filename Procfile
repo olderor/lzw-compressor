@@ -1,1 +1,1 @@
-web: python bot_processor.py
+web: python app/lzw-compressor/bot_processor.py
