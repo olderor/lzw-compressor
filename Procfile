@@ -1,1 +1,1 @@
-web: python /app/lzw-compressor/bot_processor.py
+worker: python /app/lzw-compressor/bot_processor.py
