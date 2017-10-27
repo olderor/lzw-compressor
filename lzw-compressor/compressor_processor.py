@@ -1,4 +1,4 @@
-import sys
+import os
 import file_manager
 import compressor
 from enum import Enum
@@ -10,6 +10,24 @@ class CompressingMode(Enum):
     COMPARE = 3
 
 
+def format_size(size, precision=2):
+    suffixes = ["B", "KB", "MB", "GB", "TB"]
+    suffix_index = 0
+    while size > 1024 and suffix_index < 4:
+        suffix_index += 1
+        size = size / 1024.0
+    return "%.*f %s" % (precision, size, suffixes[suffix_index])
+
+
+def format_number(number):
+    s = "%d" % number
+    groups = []
+    while s and s[-1].isdigit():
+        groups.append(s[-3:])
+        s = s[:-3]
+    return s + " ".join(reversed(groups))
+
+
 class CompressorProcessor:
 
     def __init__(self):
@@ -17,10 +35,20 @@ class CompressorProcessor:
         self.files = dict()
 
     @staticmethod
+    def get_file_sizes_difference(first, second):
+        first_size = os.path.getsize(first)
+        second_size = os.path.getsize(second)
+        return first_size - second_size
+
+    @staticmethod
     def compress(file_path, compressed_file_path):
         data = file_manager.read_binary_file(file_path)
         encoded = compressor.compress(data)
         file_manager.write_binary_file(compressed_file_path, encoded)
+        if CompressorProcessor.get_file_sizes_difference(file_path, compressed_file_path) < 0:
+            encoded = compressor.copy_to_compress(data)
+            file_manager.write_binary_file(compressed_file_path, encoded)
+
 
     @staticmethod
     def decompress(file_path, compressed_file_path):
@@ -37,19 +65,24 @@ class CompressorProcessor:
         files = self.files[chat_id]
         if mode == CompressingMode.COMPARE:
             bot.send_message(chat_id, "Comparing...")
-            if self.compare(files[0][0], files[1][0]):
+            if CompressorProcessor.compare(files[0][0], files[1][0]):
                 bot.send_message(chat_id, "The content is the same.")
             else:
                 bot.send_message(chat_id, "The content is different.")
         elif mode == CompressingMode.COMPRESS:
             bot.send_message(chat_id, "Compressing...")
-            self.compress(files[0][0], files[0][1])
+            CompressorProcessor.compress(files[0][0], files[0][1])
             doc = open(files[0][1], 'rb')
             bot.send_document(chat_id, doc)
+            size_dif = CompressorProcessor.get_file_sizes_difference(files[0][0], files[0][1])
+            if size_dif < 0:
+                bot.send_message(chat_id, "Compressing done. No data compressed :(")
+            else:
+                bot.send_message(chat_id, "Compressing done. :)\nSaved " + format_number(size_dif) + " bytes (" + format_size(size_dif) + ").")
             doc.close()
         else:
             bot.send_message(chat_id, "Decompressing...")
-            self.decompress(files[0][0], files[0][2])
+            CompressorProcessor.decompress(files[0][0], files[0][2])
             doc = open(files[0][2], 'rb')
             bot.send_document(chat_id, doc)
             doc.close()

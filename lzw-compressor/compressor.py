@@ -18,12 +18,16 @@ def get_table2():
     return table
 
 
+def copy_to_compress(bytes):
+    return bytearray([0]) + bytes
+
+
 def compress(bytes):
     text = struct.unpack("B" * len(bytes), bytes)
     if len(text) == 0:
         return []
 
-    result = []
+    result = [1]
     table = get_table()
     current = ""
     blocks = []
@@ -44,6 +48,8 @@ def compress(bytes):
 
 
 def decompress(packed_data):
+    if packed_data[0] == 0:
+        return packed_data[1:]
     commpressed_data = struct.unpack("H" * (len(packed_data) // 2), packed_data)
 
     table = get_table2()
