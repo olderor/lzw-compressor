@@ -51,16 +51,15 @@ def decompress(packed_data):
     if len(packed_data) == 0:
         return packed_data
 
-    bit = packed_data[0]
-    packed_data = packed_data[1:]
-    if bit == 0:
-        return packed_data
     commpressed_data = struct.unpack("H" * (len(packed_data) // 2), packed_data)
+    if commpressed_data[0] == 0:
+        commpressed_data = commpressed_data[1:]
+        return struct.pack("B" * (len(commpressed_data)), *commpressed_data)
 
     table = get_table2()
 
-    prev = table[commpressed_data[0]]
-    commpressed_data = commpressed_data[1:]
+    prev = table[commpressed_data[1]]
+    commpressed_data = commpressed_data[2:]
     result = prev
     string = ""
     for element in commpressed_data:
