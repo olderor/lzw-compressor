@@ -48,8 +48,13 @@ def compress(bytes):
 
 
 def decompress(packed_data):
-    if packed_data[0] == 0:
-        return packed_data[1:]
+    if len(packed_data) == 0:
+        return packed_data
+
+    bit = packed_data[0]
+    packed_data = packed_data[1:]
+    if bit == 0:
+        return packed_data
     commpressed_data = struct.unpack("H" * (len(packed_data) // 2), packed_data)
 
     table = get_table2()
