@@ -1,3 +1,5 @@
+import os
+
 
 def read_file(filename):
     file = open(filename, 'r')
@@ -34,3 +36,9 @@ def compare_files_content(filenames):
         if content != to_compare:
             return False
     return True
+
+
+def create_directory_if_not_exists(file_path):
+    directory = os.path.dirname(file_path)
+    if not os.path.exists(directory):
+        os.makedirs(directory)

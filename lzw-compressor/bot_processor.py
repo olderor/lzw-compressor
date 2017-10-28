@@ -1,6 +1,9 @@
 import telebot
 import logging
+from parser import Parser
+from page_compressor import PageCompressor
 from compressor_processor import *
+from file_manager import create_directory_if_not_exists
 
 TOKEN = "450503576:AAGBzxaZDaPyrP4Fuu-3J8_I47raOpsavfM"
 
@@ -8,12 +11,6 @@ bot = telebot.TeleBot(TOKEN)
 logger = telebot.logger
 telebot.logger.setLevel(logging.DEBUG)
 compressor = CompressorProcessor()
-
-
-def create_directory_if_not_exists(file_path):
-    directory = os.path.dirname(file_path)
-    if not os.path.exists(directory):
-        os.makedirs(directory)
 
 
 @bot.message_handler(commands=["compress"])
@@ -41,7 +38,16 @@ def help(message):
 
 @bot.message_handler(content_types=["text"])
 def undefined_text(message):
-    bot.reply_to(message, "Select a mode /compress /decompress or /compare and send me a file.")
+    links = Parser.find_urls(message.text)
+    if len(links) == 0:
+        bot.reply_to(message, "Select a mode /compress /decompress or /compare and send me a file.")
+        return
+    bot.reply_to(message, "Links found:\n" + "\n".join(links) + "\nParsing pages...")
+    for link in links:
+        try:
+            PageCompressor.process_url(link, message.chat.id, bot)
+        except Exception as e:
+            bot.send_message(message.chat.id, e)
 
 
 @bot.message_handler(content_types=['document'])
