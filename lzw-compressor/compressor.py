@@ -1,8 +1,10 @@
 import struct
 
+
 END_OF_BLOCK = 256
 END_OF_DATA = 257
 MAX_TABLE_SIZE = 2 ** 16
+
 
 def get_table():
     table = {}

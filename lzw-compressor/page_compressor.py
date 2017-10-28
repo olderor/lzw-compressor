@@ -5,6 +5,7 @@ from compressor_processor import *
 from file_manager import create_directory_if_not_exists
 from urllib.parse import urljoin, urlparse
 
+
 ALLOWED_TEXT_FORMATS = [".txt"]
 
 
