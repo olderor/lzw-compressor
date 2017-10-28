@@ -15,6 +15,9 @@ class PageCompressor:
     def process_url(url, chat_id, bot):
         content = PageCompressor.get_page_content(url)
         text_files_links = PageCompressor.find_links_to_text_files(content)
+        if len(text_files_links) == 0:
+            bot.send_message(chat_id, "No text files found on that page (" + url + ").")
+            return
         bot.send_message(chat_id, "Compressing text files:\n" + "\n".join(text_files_links))
         directory_path = "./data/" + str(chat_id) + "/links/"
         create_directory_if_not_exists(directory_path)
