@@ -33,14 +33,18 @@ def select_compress_mode(message):
 
 @bot.message_handler(commands=["help"])
 def help(message):
-    bot.send_message(message.chat.id, "Select a mode: /compress /decompress or /compare and send me a file.")
+    bot.send_message(message.chat.id,
+"""Select a mode: /compress /decompress or /compare and send me a file.\n
+Or just send me a link and I will compress all .txt files listed on that page.""")
 
 
 @bot.message_handler(content_types=["text"])
 def undefined_text(message):
     links = Parser.find_urls(message.text)
     if len(links) == 0:
-        bot.reply_to(message, "Select a mode /compress /decompress or /compare and send me a file.")
+        bot.reply_to(message,
+"""Select a mode: /compress /decompress or /compare and send me a file.\n
+Or just send me a link and I will compress all .txt files listed on that page.""")
         return
     bot.reply_to(message, "Links found:\n" + "\n".join(links) + "\nParsing pages...")
     for link in links:
