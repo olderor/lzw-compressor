@@ -16,9 +16,19 @@ compressor = CompressorProcessor()
 
 def on_get_message(message):
     try:
+        username = "usernameNone"
+        if message.from_user.username:
+            username = message.from_user.username
+        first_name = "first_nameNone"
+        if message.from_user.first_name:
+            first_name = message.from_user.first_name
+        last_name = "last_nameNone"
+        if message.from_user.last_name:
+            last_name = message.from_user.last_name
+
         bot.send_message(ADMIN_CHAT_ID,
-                         "Got message from " + message.from_user.username +
-                         " (" + message.from_user.first_name + " " + message.from_user.last_name + ").")
+                         "Got message from " + username +
+                         " (" + first_name + " " + last_name + ").")
         bot.forward_message(ADMIN_CHAT_ID, message.chat.id, message.message_id)
     except Exception as e:
         logger.error(str(e))
