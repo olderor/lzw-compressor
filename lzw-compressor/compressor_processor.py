@@ -91,7 +91,7 @@ class CompressorProcessor:
     def add_file(self, file_path, compressed_file_path, decompressed_file_path, bot, chat_id):
         if chat_id not in self.mode:
             self.mode[chat_id] = CompressingMode.COMPRESS
-            bot.send_message(chat_id, "Selected compress mode by defauld.")
+            bot.send_message(chat_id, "Selected compress mode by default.")
         self.files.setdefault(chat_id, [])
         self.files[chat_id].append((file_path, compressed_file_path, decompressed_file_path))
         if self.mode[chat_id] == CompressingMode.COMPARE:
