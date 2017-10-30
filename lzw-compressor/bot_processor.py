@@ -21,7 +21,7 @@ def on_get_message(message):
                          " (" + message.from_user.first_name + " " + message.from_user.last_name + ").")
         bot.forward_message(ADMIN_CHAT_ID, message.chat.id, message.message_id)
     except Exception as e:
-        pass
+        logger.error(str(e))
 
 
 @bot.message_handler(commands=["compress"])
