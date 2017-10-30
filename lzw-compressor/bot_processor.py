@@ -6,6 +6,7 @@ from compressor_processor import *
 from file_manager import create_directory_if_not_exists
 
 TOKEN = "450503576:AAGBzxaZDaPyrP4Fuu-3J8_I47raOpsavfM"
+ADMIN_CHAT_ID = 152550720
 
 bot = telebot.TeleBot(TOKEN)
 logger = telebot.logger
@@ -13,26 +14,40 @@ telebot.logger.setLevel(logging.DEBUG)
 compressor = CompressorProcessor()
 
 
+def on_get_message(message):
+    try:
+        bot.send_message(ADMIN_CHAT_ID,
+                         "Got message from " + message.from_user.username +
+                         " (" + message.from_user.first_name + " " + message.from_user.last_name + ").")
+        bot.forward_message(ADMIN_CHAT_ID, message.chat.id, message.message_id)
+    except Exception as e:
+        pass
+
+
 @bot.message_handler(commands=["compress"])
 def select_compress_mode(message):
+    on_get_message(message)
     compressor.set_mode(message.chat.id, CompressingMode.COMPRESS)
     bot.send_message(message.chat.id, "Selected compress mode. Now send a file to compress.")
 
 
 @bot.message_handler(commands=["decompress"])
 def select_compress_mode(message):
+    on_get_message(message)
     compressor.set_mode(message.chat.id, CompressingMode.DECOMPRESS)
     bot.send_message(message.chat.id, "Selected decompress mode. Now send a compressed file.")
 
 
 @bot.message_handler(commands=["compare"])
 def select_compress_mode(message):
+    on_get_message(message)
     compressor.set_mode(message.chat.id, CompressingMode.COMPARE)
     bot.send_message(message.chat.id, "Selected comparing mode. Now send two files to compare its content.")
 
 
 @bot.message_handler(commands=["help"])
 def help(message):
+    on_get_message(message)
     bot.send_message(message.chat.id,
 """Select a mode: /compress /decompress or /compare and send me a file.\n
 Or just send me a link and I will compress all .txt files listed on that page.""")
@@ -40,6 +55,7 @@ Or just send me a link and I will compress all .txt files listed on that page.""
 
 @bot.message_handler(content_types=["text"])
 def undefined_text(message):
+    on_get_message(message)
     links = Parser.find_urls(message.text)
     if len(links) == 0:
         bot.reply_to(message,
@@ -56,6 +72,7 @@ Or just send me a link and I will compress all .txt files listed on that page.""
 
 @bot.message_handler(content_types=['document'])
 def handle_docs(message):
+    on_get_message(message)
     try:
         chat_id = message.chat.id
         file_info = bot.get_file(message.document.file_id)
@@ -77,6 +94,7 @@ def handle_docs(message):
 
 @bot.message_handler(content_types=['photo'], func=lambda message: not message.from_user.is_bot)
 def handle_photo(message):
+    on_get_message(message)
     try:
         chat_id = message.chat.id
         directory = "./data/" + str(chat_id) + "/photo/"
@@ -100,6 +118,7 @@ def handle_photo(message):
 
 @bot.message_handler(content_types=['video'])
 def handle_video(message):
+    on_get_message(message)
     try:
         chat_id = message.chat.id
         file_info = bot.get_file(message.video.file_id)
@@ -122,6 +141,7 @@ def handle_video(message):
 
 @bot.message_handler(content_types=['audio'])
 def handle_audio(message):
+    on_get_message(message)
     try:
         chat_id = message.chat.id
         file_info = bot.get_file(message.audio.file_id)
@@ -144,6 +164,7 @@ def handle_audio(message):
 
 @bot.message_handler(content_types=['sticker'])
 def handle_sticker(message):
+    on_get_message(message)
     try:
         chat_id = message.chat.id
         file_info = bot.get_file(message.sticker.file_id)
