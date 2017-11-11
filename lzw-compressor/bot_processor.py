@@ -8,7 +8,7 @@ from file_manager import create_directory_if_not_exists
 
 TOKEN = "450503576:AAGBzxaZDaPyrP4Fuu-3J8_I47raOpsavfM"
 ADMIN_CHAT_ID = 152550720
-BANNED_USERS = [('Dmytro', 'Nazarenko')]
+BANNED_USERS = [] #('Dmytro', 'Nazarenko')]
 
 
 bot = telebot.TeleBot(TOKEN)
