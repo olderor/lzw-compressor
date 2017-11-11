@@ -8,4 +8,4 @@ class Parser:
 
     @staticmethod
     def find_hrefs(content):
-        return re.findall(r'href=[\'"]?([^\'" >]+)', content)
+        return re.findall(r'href=[\'"]?([^\'" >]+)', content, re.IGNORECASE)
