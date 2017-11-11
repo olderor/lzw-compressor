@@ -49,7 +49,7 @@ class PageCompressor:
     @staticmethod
     def download_text_file(link_to_file, directory_path):
         filename = PageCompressor.get_file_name_from_url(link_to_file)
-        response = requests.get(link_to_file, stream=True)
+        response = requests.get(link_to_file, stream=True, verify=False)
 
         with open(directory_path + filename, "wb") as handle:
             for data in tqdm(response.iter_content()):
