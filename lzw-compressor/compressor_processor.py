@@ -2,6 +2,7 @@ import os
 import file_manager
 import compressor
 from enum import Enum
+import math
 
 
 class CompressingMode(Enum):
@@ -38,7 +39,7 @@ class CompressorProcessor:
     def get_file_sizes_difference(first, second):
         first_size = os.path.getsize(first)
         second_size = os.path.getsize(second)
-        return int((first_size - second_size) * 100 / first_size), first_size - second_size
+        return int(math.ceil((first_size - second_size) * 100 / first_size)), first_size - second_size
 
     @staticmethod
     def compress(file_path, compressed_file_path):
