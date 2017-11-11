@@ -60,7 +60,8 @@ def decompress(packed_data):
     commpressed_data = struct.unpack("H" * (len(packed_data) // 2), packed_data)
 
     table = get_table2()
-
+    if commpressed_data[0] not in table:
+        raise Exception("Failed to decompress")
     prev = table[commpressed_data[0]]
     commpressed_data = commpressed_data[1:]
     result = prev
@@ -71,7 +72,7 @@ def decompress(packed_data):
         elif element == len(table):
             string = prev + prev[0]
         else:
-            return "Failed to decompress"
+            raise Exception("Failed to decompress")
 
         result += string
         table[len(table)] = prev + string[0]
