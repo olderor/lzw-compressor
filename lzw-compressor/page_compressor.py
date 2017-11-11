@@ -68,4 +68,4 @@ class PageCompressor:
 
     @staticmethod
     def get_page_content(url):
-        return requests.get(url).text
+        return requests.get(url, verify=False).text
