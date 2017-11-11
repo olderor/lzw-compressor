@@ -34,12 +34,10 @@ class PageCompressor:
             bot.send_document(chat_id, doc)
             doc.close()
             size_dif = CompressorProcessor.get_file_sizes_difference(file_path, compressed_file_path)
-            if size_dif < 0:
+            if size_dif[1] < 0:
                 bot.send_message(chat_id, "Compressing done. No data compressed :(")
             else:
-                bot.send_message(chat_id,
-                                 "Compressing done. :)\nSaved " + format_number(size_dif) + " bytes (" + format_size(
-                                     size_dif) + ").")
+                bot.send_message(chat_id, "Compressing done. :)\nSaved " + str(size_dif[0]) + "% = " + format_number(size_dif[1]) + " bytes (" + format_size(size_dif[1]) + ").")
 
     @staticmethod
     def get_file_name_from_url(url):

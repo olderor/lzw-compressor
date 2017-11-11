@@ -38,14 +38,14 @@ class CompressorProcessor:
     def get_file_sizes_difference(first, second):
         first_size = os.path.getsize(first)
         second_size = os.path.getsize(second)
-        return first_size - second_size
+        return int((first_size - second_size) * 100 / first_size), first_size - second_size
 
     @staticmethod
     def compress(file_path, compressed_file_path):
         data = file_manager.read_binary_file(file_path)
         encoded = compressor.compress(data)
         file_manager.write_binary_file(compressed_file_path, encoded)
-        if CompressorProcessor.get_file_sizes_difference(file_path, compressed_file_path) < 0:
+        if CompressorProcessor.get_file_sizes_difference(file_path, compressed_file_path)[1] < 0:
             encoded = compressor.copy_to_compress(data)
             file_manager.write_binary_file(compressed_file_path, encoded)
 
@@ -75,10 +75,10 @@ class CompressorProcessor:
             doc = open(files[0][1], 'rb')
             bot.send_document(chat_id, doc)
             size_dif = CompressorProcessor.get_file_sizes_difference(files[0][0], files[0][1])
-            if size_dif < 0:
+            if size_dif[1] < 0:
                 bot.send_message(chat_id, "Compressing done. No data compressed :(")
             else:
-                bot.send_message(chat_id, "Compressing done. :)\nSaved " + format_number(size_dif) + " bytes (" + format_size(size_dif) + ").")
+                bot.send_message(chat_id, "Compressing done. :)\nSaved " + str(size_dif[0]) + "% = " + format_number(size_dif[1]) + " bytes (" + format_size(size_dif[1]) + ").")
             doc.close()
         else:
             bot.send_message(chat_id, "Decompressing...")
