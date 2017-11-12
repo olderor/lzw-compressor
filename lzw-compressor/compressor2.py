@@ -1,5 +1,8 @@
 import struct
 
+# TODO: Implement saving filenames.
+# TODO: Implement compressing few files into one archive.
+
 #CLEAR_CODE = 256
 #END_OF_DATA = 257
 TABLE_SIZE = 256
@@ -25,10 +28,13 @@ def get_table2():
 
 
 def copy_to_compress(bytes):
-    return bytearray([0]) + bytes
+    # TODO: Set flag if compressing was not success.
+    #return bytearray([0]) + bytes
+    return bytes
 
 
 def compress(bytes):
+    # TODO: Set flag if compressing was success.
     text = struct.unpack("B" * len(bytes), bytes)
     if len(text) == 0:
         return []
@@ -60,6 +66,7 @@ def decompress(commpressed_data):
     if len(commpressed_data) == 0:
         return []
 
+    # TODO: Check if compressing was not success.
     table = get_table2()
     prev = None
     result = ""
