@@ -2,9 +2,9 @@ import sys
 from compressor_processor import CompressorProcessor
 
 
-input_filename = sys.argv[1]
-output_filename = sys.argv[2]
-command = sys.argv[3]
+command = sys.argv[1]
+input_filename = sys.argv[2]
+output_filename = sys.argv[3]
 
 if command == "compress":
     CompressorProcessor.compress(input_filename, output_filename)
