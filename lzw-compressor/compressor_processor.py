@@ -1,6 +1,6 @@
 import os
 import file_manager
-import compressor
+import compressor2 as compressor
 from enum import Enum
 import math
 

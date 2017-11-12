@@ -1,8 +1,6 @@
 import struct
 
 
-END_OF_BLOCK = 256
-END_OF_DATA = 257
 MAX_TABLE_SIZE = 2 ** 16
 
 
@@ -65,7 +63,6 @@ def decompress(packed_data):
     prev = table[commpressed_data[0]]
     commpressed_data = commpressed_data[1:]
     result = prev
-    string = ""
     for element in commpressed_data:
         if element in table:
             string = table[element]
