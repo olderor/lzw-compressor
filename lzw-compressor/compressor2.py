@@ -2,7 +2,7 @@ import struct
 
 #CLEAR_CODE = 256
 #END_OF_DATA = 257
-TABLE_SIZE = 258
+TABLE_SIZE = 256
 MAX_TABLE_SIZE = 2 ** 32
 
 
