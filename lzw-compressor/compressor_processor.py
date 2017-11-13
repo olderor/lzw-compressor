@@ -12,6 +12,7 @@ class CompressingMode(Enum):
     COMPRESS = 1
     DECOMPRESS = 2
     COMPARE = 3
+    DOWNLOAD = 4
 
 
 def format_size(size, precision=2):
@@ -134,3 +135,6 @@ class CompressorProcessor:
 
     def set_mode(self, chat_id, mode):
         self.mode[chat_id] = mode
+
+    def get_mode(self, chat_id):
+        return self.mode.get(chat_id, CompressingMode.COMPRESS)

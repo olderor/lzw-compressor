@@ -1,7 +1,7 @@
 import telebot
 import logging
 from parser import Parser
-from page_compressor import PageCompressor
+from page_compressor import PageProcessor
 from compressor_processor import *
 from file_manager import create_directory_if_not_exists
 
@@ -76,6 +76,14 @@ def select_compress_mode(message):
     bot.send_message(message.chat.id, "Selected comparing mode. Now send two files to compare its content.")
 
 
+@bot.message_handler(commands=["download"])
+@message_logger
+@messages_filter
+def select_compress_mode(message):
+    compressor_proc.set_mode(message.chat.id, CompressingMode.DOWNLOAD)
+    bot.send_message(message.chat.id, "Selected downloading mode. Now send a link to text files.")
+
+
 @bot.message_handler(commands=["help"])
 @message_logger
 @messages_filter
@@ -98,7 +106,7 @@ Or just send me a link and I will compress all .txt files listed on that page.""
     bot.reply_to(message, "Links found:\n" + "\n".join(links) + "\nParsing pages...")
     for link in links:
         try:
-            PageCompressor.process_url(link, message.chat.id, bot)
+            PageProcessor.process_url(link, compressor_proc.get_mode(message.chat.id), message.chat.id, bot)
         except Exception as e:
             bot.send_message(message.chat.id, e)
 
