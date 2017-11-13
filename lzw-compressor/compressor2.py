@@ -4,8 +4,8 @@ import struct
 # TODO: Implement compressing few files into one archive.
 
 #CLEAR_CODE = 256
-#END_OF_DATA = 257
-TABLE_SIZE = 256
+END_OF_DATA = 256
+TABLE_SIZE = 257
 MAX_TABLE_SIZE = 2 ** 32
 
 
@@ -14,7 +14,7 @@ def get_table():
     for i in range(256):
         table[chr(i)] = i
     #table[CLEAR_CODE] = CLEAR_CODE
-    #table[END_OF_DATA] = END_OF_DATA
+    table[END_OF_DATA] = END_OF_DATA
     return table
 
 
@@ -23,7 +23,7 @@ def get_table2():
     for i in range(256):
         table[i] = chr(i)
     #table[CLEAR_CODE] = CLEAR_CODE
-    #table[END_OF_DATA] = END_OF_DATA
+    table[END_OF_DATA] = END_OF_DATA
     return table
 
 
@@ -35,11 +35,15 @@ def copy_to_compress(bytes):
 
 def compress(bytes):
     # TODO: Set flag if compressing was success.
+    result = encode(bytes)
+    return pack(result)
+
+
+def encode(bytes, result=[]):
     text = struct.unpack("B" * len(bytes), bytes)
     if len(text) == 0:
         return []
 
-    result = []
     table = get_table()
     current = ""
     for char in text:
@@ -59,25 +63,52 @@ def compress(bytes):
 
     result.append(table[current])
     #result.append(table[CLEAR_CODE])
-    return pack(result)
+    return result
 
 
-def decompress(commpressed_data):
-    if len(commpressed_data) == 0:
-        return []
+def add_split_code(result):
+    result.append(END_OF_DATA)
+    return result
 
+
+def decompress(compressed_data):
     # TODO: Check if compressing was not success.
+    if len(compressed_data) == 0:
+        return []
+    result = []
+    bytes = unpack(compressed_data)
+    offset = 0
+    while offset != len(bytes):
+        offset, name = decode(bytes, offset)
+        offset, content = decode(bytes, offset)
+        content_bytes = str_to_bytes(content)
+        result.append((name, content_bytes))
+    return result
+
+
+
+def str_to_bytes(str):
+    lst = list(map(ord, str))
+    binary = struct.pack("B" * (len(str)), *lst)
+    return binary
+
+
+def decode(data, offset):
     table = get_table2()
     prev = None
     result = ""
-    for element in unpack(commpressed_data):
+    finish = len(data)
+    for i in range(offset, len(data)):
+        element = data[i]
         if prev is None:
             if element not in table:
                 raise Exception("Failed to decompress")
             prev = table[element]
             result += prev
             continue
-        # if element == END_OF_DATA:
+        if element == END_OF_DATA:
+            finish = i + 1
+            break
         #     raise Exception("Failed to decompress")
         # if element == CLEAR_CODE:
         #     table = get_table2()
@@ -95,10 +126,7 @@ def decompress(commpressed_data):
         if len(table) == MAX_TABLE_SIZE:
             table = get_table2()
         prev = string
-
-    lst = list(map(ord, result))
-    binary = struct.pack("B" * (len(result)), *lst)
-    return binary
+    return finish, result
 
 
 def to_bits(numb, count):

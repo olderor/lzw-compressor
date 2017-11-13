@@ -14,7 +14,7 @@ BANNED_USERS = [] #('Dmytro', 'Nazarenko')]
 bot = telebot.TeleBot(TOKEN)
 logger = telebot.logger
 telebot.logger.setLevel(logging.DEBUG)
-compressor = CompressorProcessor()
+compressor_proc = CompressorProcessor()
 
 
 def messages_filter(handler):
@@ -56,7 +56,7 @@ def message_logger(handler):
 @message_logger
 @messages_filter
 def select_compress_mode(message):
-    compressor.set_mode(message.chat.id, CompressingMode.COMPRESS)
+    compressor_proc.set_mode(message.chat.id, CompressingMode.COMPRESS)
     bot.send_message(message.chat.id, "Selected compress mode. Now send a file to compress.")
 
 
@@ -64,7 +64,7 @@ def select_compress_mode(message):
 @message_logger
 @messages_filter
 def select_compress_mode(message):
-    compressor.set_mode(message.chat.id, CompressingMode.DECOMPRESS)
+    compressor_proc.set_mode(message.chat.id, CompressingMode.DECOMPRESS)
     bot.send_message(message.chat.id, "Selected decompress mode. Now send a compressed file.")
 
 
@@ -72,7 +72,7 @@ def select_compress_mode(message):
 @message_logger
 @messages_filter
 def select_compress_mode(message):
-    compressor.set_mode(message.chat.id, CompressingMode.COMPARE)
+    compressor_proc.set_mode(message.chat.id, CompressingMode.COMPARE)
     bot.send_message(message.chat.id, "Selected comparing mode. Now send two files to compare its content.")
 
 
@@ -112,16 +112,12 @@ def handle_docs(message):
         file_info = bot.get_file(message.document.file_id)
         downloaded_file = bot.download_file(file_info.file_path)
         directory = "./data/" + str(chat_id) + "/document/"
-        src = directory + message.document.file_id + "_" + message.document.file_name
-        compressed = directory + "compressed_" + message.document.file_id + "_" + message.document.file_name
-        decompressed = directory + "decompressed_" + message.document.file_id + "_" + message.document.file_name
+        src = directory + message.document.file_name
         create_directory_if_not_exists(src)
-        create_directory_if_not_exists(compressed)
-        create_directory_if_not_exists(decompressed)
         with open(src, "wb") as new_file:
             new_file.write(downloaded_file)
         bot.send_message(message.chat.id, "Document successfully uploaded.")
-        compressor.add_file(src, compressed, decompressed, bot, chat_id)
+        compressor_proc.add_file(src, directory, bot, chat_id)
     except Exception as e:
         bot.reply_to(message, e)
 
@@ -137,16 +133,12 @@ def handle_photo(message):
         file_info = bot.get_file(photo.file_id)
         file_name = file_info.file_path.replace("/", "_")
         downloaded_file = bot.download_file(file_info.file_path)
-        src = directory + photo.file_id + "_" + file_name
-        compressed = directory + "compressed_" + photo.file_id + "_" + file_name
-        decompressed = directory + "decompressed_" + photo.file_id + "_" + file_name
+        src = directory + file_name
         create_directory_if_not_exists(src)
-        create_directory_if_not_exists(compressed)
-        create_directory_if_not_exists(decompressed)
         with open(src, "wb") as new_file:
             new_file.write(downloaded_file)
         bot.send_message(message.chat.id, "Photo successfully uploaded.")
-        compressor.add_file(src, compressed, decompressed, bot, chat_id)
+        compressor_proc.add_file(src, directory, bot, chat_id)
     except Exception as e:
         bot.reply_to(message, e)
 
@@ -161,16 +153,12 @@ def handle_video(message):
         file_name = file_info.file_path.replace("/", "_")
         downloaded_file = bot.download_file(file_info.file_path)
         directory = "./data/" + str(chat_id) + "/video/"
-        src = directory + message.video.file_id + "_" + file_name
-        compressed = directory + "compressed_" + message.video.file_id + "_" + file_name
-        decompressed = directory + "decompressed_" + message.video.file_id + "_" + file_name
+        src = directory + file_name
         create_directory_if_not_exists(src)
-        create_directory_if_not_exists(compressed)
-        create_directory_if_not_exists(decompressed)
         with open(src, "wb") as new_file:
             new_file.write(downloaded_file)
         bot.send_message(message.chat.id, "Video successfully uploaded.")
-        compressor.add_file(src, compressed, decompressed, bot, chat_id)
+        compressor_proc.add_file(src, directory, bot, chat_id)
     except Exception as e:
         bot.reply_to(message, e)
 
@@ -185,16 +173,12 @@ def handle_audio(message):
         file_name = file_info.file_path.replace("/", "_")
         downloaded_file = bot.download_file(file_info.file_path)
         directory = "./data/" + str(chat_id) + "/audio/"
-        src = directory + message.audio.file_id + "_" + file_name
-        compressed = directory + "compressed_" + message.audio.file_id + "_" + file_name
-        decompressed = directory + "decompressed_" + message.audio.file_id + "_" + file_name
+        src = directory + file_name
         create_directory_if_not_exists(src)
-        create_directory_if_not_exists(compressed)
-        create_directory_if_not_exists(decompressed)
         with open(src, "wb") as new_file:
             new_file.write(downloaded_file)
         bot.send_message(message.chat.id, "Audio successfully uploaded.")
-        compressor.add_file(src, compressed, decompressed, bot, chat_id)
+        compressor_proc.add_file(src, directory, bot, chat_id)
     except Exception as e:
         bot.reply_to(message, e)
 
@@ -209,16 +193,12 @@ def handle_sticker(message):
         file_name = file_info.file_path.replace("/", "_")
         downloaded_file = bot.download_file(file_info.file_path)
         directory = "./data/" + str(chat_id) + "/sticker/"
-        src = directory + message.sticker.file_id + "_" + file_name
-        compressed = directory + "compressed_" + message.sticker.file_id + "_" + file_name
-        decompressed = directory + "decompressed_" + message.sticker.file_id + "_" + file_name
+        src = directory + file_name
         create_directory_if_not_exists(src)
-        create_directory_if_not_exists(compressed)
-        create_directory_if_not_exists(decompressed)
         with open(src, "wb") as new_file:
             new_file.write(downloaded_file)
         bot.send_message(message.chat.id, "Sticker successfully uploaded.")
-        compressor.add_file(src, compressed, decompressed, bot, chat_id)
+        compressor_proc.add_file(src, directory, bot, chat_id)
     except Exception as e:
         bot.reply_to(message, e)
 

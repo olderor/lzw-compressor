@@ -3,7 +3,7 @@ from tqdm import tqdm
 from parser import Parser
 from compressor_processor import *
 from file_manager import create_directory_if_not_exists
-from urllib.parse import urljoin, urlparse
+from urllib.parse import urljoin, urlparse, unquote
 
 
 ALLOWED_TEXT_FORMATS = [".txt"]
@@ -13,31 +13,33 @@ class PageCompressor:
 
     @staticmethod
     def process_url(url, chat_id, bot):
+        host = urlparse(url).hostname
         content = PageCompressor.get_page_content(url)
         text_files_links = PageCompressor.find_links_to_text_files(content)
         if len(text_files_links) == 0:
             bot.send_message(chat_id, "No text files found on that page (" + url + ").")
             return
-        bot.send_message(chat_id, "Compressing text files:\n" + "\n".join(text_files_links))
+        bot.send_message(chat_id, "Downloading " + str(len(text_files_links)) + " text files:\n" + "\n".join(
+            map(lambda l: unquote(PageCompressor.get_file_name_from_url(l)), text_files_links)))
         directory_path = "./data/" + str(chat_id) + "/links/"
         create_directory_if_not_exists(directory_path)
+        paths = []
         for link in text_files_links:
             full_url = urljoin(url, link)
-            print(full_url)
-            filename = PageCompressor.get_file_name_from_url(full_url)
-            compressed_filename = "compressed_" + filename
+            filename = unquote(PageCompressor.get_file_name_from_url(link))
             file_path = directory_path + filename
-            compressed_file_path = directory_path + compressed_filename
             PageCompressor.download_text_file(full_url, directory_path)
-            CompressorProcessor.compress(file_path, compressed_file_path)
-            doc = open(compressed_file_path, 'rb')
-            bot.send_document(chat_id, doc)
-            doc.close()
-            size_dif = CompressorProcessor.get_file_sizes_difference(file_path, compressed_file_path)
-            if size_dif[1] < 0:
-                bot.send_message(chat_id, "Compressing done. No data compressed :(")
-            else:
-                bot.send_message(chat_id, "Compressing done. :)\nSaved " + str(size_dif[0]) + "% = " + format_number(size_dif[1]) + " bytes (" + format_size(size_dif[1]) + ").")
+            paths.append(file_path)
+        bot.send_message(chat_id, "Downloaded " + str(len(text_files_links)) + " text files. Now compressing...")
+        compressed_filename = CompressorProcessor.compress_files(paths, directory_path, host)
+        doc = open(compressed_filename, 'rb')
+        bot.send_document(chat_id, doc)
+        doc.close()
+        size_dif = CompressorProcessor.get_file_sizes_difference(paths, compressed_filename)
+        if size_dif[1] < 0:
+            bot.send_message(chat_id, "Compressing done. No data compressed :(")
+        else:
+            bot.send_message(chat_id, "Compressing done. :)\nSaved " + str(size_dif[0]) + "% = " + format_number(size_dif[1]) + " bytes (" + format_size(size_dif[1]) + ").")
 
     @staticmethod
     def get_file_name_from_url(url):
@@ -46,7 +48,7 @@ class PageCompressor:
 
     @staticmethod
     def download_text_file(link_to_file, directory_path):
-        filename = PageCompressor.get_file_name_from_url(link_to_file)
+        filename = unquote(PageCompressor.get_file_name_from_url(link_to_file))
         response = requests.get(link_to_file, stream=True, verify=False)
 
         with open(directory_path + filename, "wb") as handle:

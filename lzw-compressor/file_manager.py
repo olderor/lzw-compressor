@@ -42,3 +42,11 @@ def create_directory_if_not_exists(file_path):
     directory = os.path.dirname(file_path)
     if not os.path.exists(directory):
         os.makedirs(directory)
+
+
+def get_name(path):
+    return os.path.basename(path).split('.')[0]
+
+
+def get_directory_name(path):
+    return get_name(os.path.dirname(path))
