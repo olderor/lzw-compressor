@@ -79,6 +79,7 @@ class CompressorProcessor:
 
     @staticmethod
     def decompress(file_path, source_directory):
+        file_manager.create_directory_if_not_exists(source_directory)
         data = file_manager.read_binary_file(file_path)
         decoded = compressor.decompress(data)
         paths = []

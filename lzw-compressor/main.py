@@ -1,19 +1,40 @@
 import sys
 from compressor_processor import CompressorProcessor
+import re
+import codecs
+
+
+ESCAPE_SEQUENCE_RE = re.compile(r"""
+    ( \\U........      # 8-digit hex escapes
+    | \\u....          # 4-digit hex escapes
+    | \\x..            # 2-digit hex escapes
+    | \\[0-7]{1,3}     # Octal escapes
+    | \\N\{[^}]+\}     # Unicode characters by name
+    | \\[\\'"abfnrtv]  # Single-character escapes
+    )""", re.UNICODE | re.VERBOSE)
+
+
+def decode_escapes(s):
+    def decode_match(match):
+        return codecs.decode(match.group(0), 'unicode-escape')
+    return ESCAPE_SEQUENCE_RE.sub(decode_match, s)
 
 
 command = sys.argv[1]
-input_filename = sys.argv[2]
-output_filename = sys.argv[3]
 
 if command == "compress":
-    CompressorProcessor.compress(input_filename, output_filename)
+    paths = list(map(lambda p: p.encode('utf-8').decode('unicode_escape'), sys.argv[2:]))
+    if len(paths) == 0:
+        print("Warning! No files selected to compress.")
+    else:
+        CompressorProcessor.compress_files(paths, "./", 'archive')
 
 elif command == "decompress":
-    CompressorProcessor.decompress(input_filename, output_filename)
+    archive = sys.argv[2]
+    CompressorProcessor.decompress(archive, "./archive/")
 
 elif command == "compare":
-    print(CompressorProcessor.compare(input_filename, output_filename))
+    print(CompressorProcessor.compare(sys.argv[2], sys.argv[3]))
 
 else:
     print("undefined command")

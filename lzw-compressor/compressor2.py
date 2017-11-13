@@ -4,7 +4,8 @@ import struct
 # TODO: Implement compressing few files into one archive.
 
 #CLEAR_CODE = 256
-END_OF_DATA = 256
+#END_OF_DATA = 257
+END_OF_BLOCK = 256
 TABLE_SIZE = 257
 MAX_TABLE_SIZE = 2 ** 32
 
@@ -14,7 +15,8 @@ def get_table():
     for i in range(256):
         table[chr(i)] = i
     #table[CLEAR_CODE] = CLEAR_CODE
-    table[END_OF_DATA] = END_OF_DATA
+    #table[END_OF_DATA] = END_OF_DATA
+    table[END_OF_BLOCK] = END_OF_BLOCK
     return table
 
 
@@ -23,7 +25,8 @@ def get_table2():
     for i in range(256):
         table[i] = chr(i)
     #table[CLEAR_CODE] = CLEAR_CODE
-    table[END_OF_DATA] = END_OF_DATA
+    #table[END_OF_DATA] = END_OF_DATA
+    table[END_OF_BLOCK] = END_OF_BLOCK
     return table
 
 
@@ -67,7 +70,7 @@ def encode(bytes, result=[]):
 
 
 def add_split_code(result):
-    result.append(END_OF_DATA)
+    result.append(END_OF_BLOCK)
     return result
 
 
@@ -106,7 +109,7 @@ def decode(data, offset):
             prev = table[element]
             result += prev
             continue
-        if element == END_OF_DATA:
+        if element == END_OF_BLOCK:
             finish = i + 1
             break
         #     raise Exception("Failed to decompress")
