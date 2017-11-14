@@ -30,10 +30,7 @@ def get_table2():
 
 def compress(bytes):
     # TODO: Set flag if compressing was success.
-    bytes = struct.unpack("B" * len(bytes), bytes)
     result = encode(bytes)
-    if (len(result) > len(bytes)):
-        result = bytearray([0]) + bytes
     return pack(result)
 
 
