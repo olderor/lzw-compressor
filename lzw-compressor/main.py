@@ -1,5 +1,6 @@
 import sys
 from compressor_processor import CompressorProcessor
+from page_compressor import PageProcessor
 import re
 import codecs
 
@@ -35,6 +36,13 @@ elif command == "decompress":
 
 elif command == "compare":
     print(CompressorProcessor.compare(sys.argv[2], sys.argv[3]))
-
+elif command == "download":
+    paths = PageProcessor.download(sys.argv[2], sys.argv[3])
+    print("Downloaded " + str(len(paths)) + " files.")
+    for path in paths:
+        print(path)
+    print("Done.")
+elif command == "compress_link":
+    PageProcessor.compress(sys.argv[2])
 else:
     print("undefined command")

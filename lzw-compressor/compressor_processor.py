@@ -64,7 +64,7 @@ class CompressorProcessor:
         for file_path in file_paths:
             name_bytes = bytearray()
             name = file_manager.get_name(file_path)
-            name_bytes.extend(map(ord, name))
+            name_bytes.extend(name.encode())
 
             content = file_manager.read_binary_file(file_path)
 
